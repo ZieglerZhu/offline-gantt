@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "settings": {
+    "showToday": true,
+    "zoom": 1
+  },
+  "projects": [
+    {
+      "id": "p1",
+      "name": "星河探索计划",
+      "start": "2026-07-10",
+      "end": "2026-09-20",
+      "progress": 100,
+      "color": {
+        "mode": "preset",
+        "presetId": "blue-purple"
+      }
+    },
+    {
+      "id": "p2",
+      "name": "青竹协作平台",
+      "start": "2026-08-01",
+      "end": "2026-10-29",
+      "progress": 40,
+      "color": {
+        "mode": "preset",
+        "presetId": "cyan-blue"
+      }
+    },
+    {
+      "id": "p3",
+      "name": "云帆数据看板",
+      "start": "2026-08-25",
+      "end": "2026-11-15",
+      "progress": 65,
+      "color": {
+        "mode": "preset",
+        "presetId": "purple-magenta"
+      }
+    },
+    {
+      "id": "p4",
+      "name": "晨曦服务门户",
+      "start": "2026-09-10",
+      "end": "2026-11-25",
+      "progress": 15,
+      "color": {
+        "mode": "preset",
+        "presetId": "teal"
+      }
+    },
+    {
+      "id": "p5",
+      "name": "极光体验升级",
+      "start": "2026-10-05",
+      "end": "2026-11-30",
+      "progress": 0,
+      "color": {
+        "mode": "preset",
+        "presetId": "orange-red"
+      }
+    }
+  ]
+}

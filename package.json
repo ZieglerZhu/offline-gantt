@@ -1,0 +1,12 @@
+{
+  "name": "offline-gantt",
+  "version": "1.0.0",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "scripts": {
+    "test:browser": "node tests/browser.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

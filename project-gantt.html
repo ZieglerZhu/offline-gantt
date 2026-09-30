@@ -1,0 +1,2011 @@
+<!doctype html>
+<!--
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (c) 2026 ZieglerZhu
+
+This program is free software, distributed under the GNU GPL version 3 only.
+It comes without any warranty. See the accompanying LICENSE file for full terms.
+Source code: https://github.com/ZieglerZhu/offline-gantt
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'">
+    <title>项目甘特图 · 离线计划工具</title>
+    <style>
+:root {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",Arial,sans-serif;
+  color: #292d35;
+  background: #f7f8fa;
+  font-synthesis: none;
+  --muted: #8a909b;
+  --line: #e9ebef;
+  --accent: #6578c3
+}
+
+* {
+  box-sizing: border-box
+}
+
+body {
+  margin: 0
+}
+
+button,input,select {
+  font: inherit
+}
+
+button {
+  cursor: pointer
+}
+
+button:disabled {
+  opacity: .35;
+  cursor: not-allowed
+}
+
+button,input,select {
+  outline: none
+}
+
+button:focus-visible,input:focus-visible,select:focus-visible {
+  outline: 3px solid #b1bff1;
+  outline-offset: 2px
+}
+
+[hidden] {
+  display: none!important
+}
+
+.app-shell {
+  max-width: 1600px;
+  padding: 0 48px;
+  margin: auto
+}
+
+.page-header {
+  height: 88px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.4px
+}
+
+.brand-icon {
+  width: 30px;
+  display: grid;
+  gap: 4px
+}
+
+.brand-icon i {
+  height: 5px;
+  background: #6b78bd;
+  border-radius: 2px;
+  width: 20px
+}
+
+.brand-icon i:nth-child(2) {
+  margin-left: 6px;
+  width: 24px
+}
+
+.brand-icon i:nth-child(3) {
+  margin-left: 3px;
+  width: 15px
+}
+
+.offline {
+  font-size: 12px;
+  color: #7e8590
+}
+
+.offline>span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #75a58b;
+  border-radius: 50%;
+  margin-right: 6px
+}
+
+.intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 42px 0 34px
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 2.3px;
+  color: #8b93a3;
+  font-weight: 600;
+  margin: 0 0 13px
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin: 0 0 13px
+}
+
+.description {
+  font-size: 13px;
+  color: #8a909b;
+  margin: 0
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px
+}
+
+.summary strong {
+  font-size: 38px;
+  line-height: 1;
+  color: #7580a2;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums
+}
+
+.summary span {
+  font-size: 11px;
+  color: #969ba5
+}
+
+.chart-panel {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 5px 18px #25345703
+}
+
+.chart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f1f4;
+  flex-wrap: wrap
+}
+
+.chart-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
+
+h2 {
+  font-size: 15px;
+  margin: 0;
+  font-weight: 600
+}
+
+.section-dot {
+  width: 7px;
+  height: 7px;
+  background: #7381bb;
+  border-radius: 50%
+}
+
+.range-label {
+  font-size: 11px;
+  color: #9b9fa8;
+  margin-left: 8px
+}
+
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #757b86;
+  margin-right: 8px
+}
+
+.toggle input {
+  accent-color: #6d7dbd
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+  height: 31px
+}
+
+.zoom-controls button {
+  border: 0;
+  background: white;
+  width: 29px;
+  color: #727985;
+  height: 100%
+}
+
+.zoom-controls output {
+  font-size: 11px;
+  min-width: 43px;
+  text-align: center;
+  color: #707783
+}
+
+.divider {
+  height: 20px;
+  border-left: 1px solid var(--line);
+  margin: 0 3px
+}
+
+.button {
+  border: 1px solid #e1e4eb;
+  background: #fff;
+  color: #59616f;
+  border-radius: 7px;
+  padding: 10px 14px;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: background .15s
+}
+
+.button:hover {
+  background: #f3f5f9
+}
+
+.button.dark {
+  background: #343e54;
+  border-color: #343e54;
+  color: white
+}
+
+.button.dark:hover {
+  background: #46516a
+}
+
+.button.small {
+  padding: 7px 11px;
+  font-size: 11px
+}
+
+.button.quiet {
+  border-color: transparent;
+  background: transparent
+}
+
+.chart-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 320px;
+  padding: 12px 0 0;
+  scrollbar-color: #d4d9e4 transparent;
+  scrollbar-width: thin
+}
+
+#ganttSvg {
+  display: block;
+  max-width: none
+}
+
+.empty-state {
+  min-height: 315px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center
+}
+
+.empty-bars {
+  width: 105px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px
+}
+
+.empty-bars i {
+  height: 10px;
+  width: 67px;
+  background: linear-gradient(90deg,#d6dff5,#ded8ee);
+  border-radius: 4px
+}
+
+.empty-bars i:nth-child(2) {
+  margin-left: 26px;
+  width: 78px;
+  background: linear-gradient(90deg,#d1e8eb,#d8e1f0)
+}
+
+.empty-bars i:nth-child(3) {
+  margin-left: 10px;
+  width: 53px;
+  background: linear-gradient(90deg,#e1d7ec,#ecdce3)
+}
+
+.empty-state h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 10px
+}
+
+.empty-state p {
+  font-size: 12px;
+  color: #999faa;
+  margin: 0 0 22px
+}
+
+.chart-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #f1f2f5;
+  display: flex;
+  justify-content: space-between;
+  color: #a0a5ae;
+  font-size: 10px
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7a89bd;
+  margin-right: 7px
+}
+
+.editor {
+  margin-top: 32px
+}
+
+.editor-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px
+}
+
+.editor-heading h2 {
+  font-size: 17px
+}
+
+.editor-heading h2 span {
+  font-size: 11px;
+  margin-left: 7px;
+  color: #8c94a4;
+  background: #e9ecf2;
+  border-radius: 5px;
+  padding: 2px 6px
+}
+
+.editor-heading p {
+  font-size: 11px;
+  color: #9197a1;
+  margin: 9px 0 0
+}
+
+.editor-actions {
+  display: flex;
+  gap: 5px
+}
+
+.editor-scroll {
+  overflow: auto;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px
+}
+
+.editor-table {
+  min-width: 980px
+}
+
+.table-head,.project-row {
+  display: grid;
+  grid-template-columns: 28px minmax(150px,1fr) 145px 145px 90px 140px 100px;
+  gap: 12px;
+  align-items: start;
+  padding: 16px 20px
+}
+
+.table-head {
+  font-size: 11px;
+  color: #8c929e;
+  background: #fafbfc;
+  border-bottom: 1px solid var(--line);
+  padding-top: 13px;
+  padding-bottom: 13px
+}
+
+.project-row {
+  border-bottom: 1px solid #f0f2f5;
+  position: relative
+}
+
+.project-row:last-child {
+  border-bottom: 0
+}
+
+.project-row.dragging {
+  opacity: .45;
+  background: #f0f3fd
+}
+
+.project-row.drop-before:before,.project-row.drop-after:after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: #7b8ac4;
+  top: 0
+}
+
+.project-row.drop-after:after {
+  top: auto;
+  bottom: 0
+}
+
+.field input,.field select {
+  width: 100%;
+  border: 1px solid #e5e8ed;
+  border-radius: 6px;
+  background: #fff;
+  padding: 8px 9px;
+  height: 35px;
+  font-size: 12px;
+  color: #586170
+}
+
+.field input::placeholder {
+  color: #b3b8c1
+}
+
+.field input[aria-invalid=true],.field select[aria-invalid=true] {
+  border-color: #d76565;
+  background: #fff9f9
+}
+
+.field .error {
+  display: block;
+  color: #c85353;
+  font-size: 10px;
+  line-height: 1.5;
+  margin-top: 4px
+}
+
+.field .error:empty {
+  display: none
+}
+
+.color-control {
+  display: flex;
+  gap: 5px
+}
+
+.color-control select {
+  min-width: 0
+}
+
+.color-control input[type=color] {
+  width: 34px;
+  padding: 3px;
+  flex-shrink: 0
+}
+
+.row-actions {
+  display: flex;
+  gap: 3px
+}
+
+.icon-button {
+  width: 30px;
+  height: 35px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #949ba8;
+  font-size: 15px
+}
+
+.icon-button:hover {
+  background: #edf0f6;
+  color: #5a6682
+}
+
+.icon-button.delete:hover {
+  color: #bd5555;
+  background: #fff0f0
+}
+
+.handle {
+  touch-action: none;
+  cursor: grab;
+  letter-spacing: -2px
+}
+
+.editor-empty {
+  text-align: center;
+  padding: 25px;
+  color: #a2a8b3;
+  font-size: 12px
+}
+
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 13px;
+  font-size: 10px;
+  color: #969da8
+}
+
+.editor-footer .warning {
+  color: #ba7950
+}
+
+.page-footer {
+  display: flex;
+  justify-content: space-between;
+  margin: 38px 0 24px;
+  font-size: 10px;
+  color: #adb2bc
+}
+
+.page-footer span:last-child {
+  letter-spacing: 1.6px
+}
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #343e54;
+  color: #fff;
+  padding: 13px 20px;
+  border-radius: 9px;
+  box-shadow: 0 6px 30px #1f294030;
+  font-size: 12px;
+  z-index: 10;
+  max-width: 90vw;
+  display: flex;
+  gap: 20px;
+  align-items: center
+}
+
+.toast button {
+  background: transparent;
+  border: 0;
+  color: #bfcfff;
+  white-space: nowrap
+}
+
+dialog {
+  max-width: 440px;
+  border: 1px solid #e5e8ee;
+  border-radius: 14px;
+  padding: 28px;
+  color: #343e54;
+  box-shadow: 0 20px 80px #1d294333
+}
+
+dialog::backdrop {
+  background: #202b4555
+}
+
+dialog h2 {
+  font-size: 20px;
+  margin-bottom: 18px
+}
+
+dialog p {
+  font-size: 13px;
+  line-height: 1.8
+}
+
+.muted {
+  color: #9097a3
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px
+}
+
+@media(max-width:1100px) {
+  .app-shell {
+    padding: 0 24px
+  }
+
+  .chart-toolbar {
+    padding: 18px
+  }
+
+  .range-label {
+    display: none
+  }
+
+  .editor-heading {
+    align-items: flex-start
+  }
+}
+
+@media(max-width:700px) {
+  .app-shell {
+    padding: 0 16px
+  }
+
+  .page-header {
+    height: 68px
+  }
+
+  .brand {
+    font-size: 11px
+  }
+
+  .offline {
+    font-size: 10px
+  }
+
+  .intro {
+    padding: 30px 0
+  }
+
+  h1 {
+    font-size: 25px
+  }
+
+  .summary {
+    display: none
+  }
+
+  .chart-controls {
+    flex-wrap: wrap;
+    gap: 6px
+  }
+
+  .chart-heading {
+    width: 100%;
+    margin-bottom: 4px
+  }
+
+  .chart-footer span:last-child {
+    display: none
+  }
+
+  .editor-heading {
+    flex-direction: column
+  }
+
+  .editor-actions {
+    align-self: flex-end
+  }
+
+  .editor-footer span:last-child {
+    display: none
+  }
+
+  .description {
+    font-size: 12px
+  }
+
+  .page-footer {
+    margin-top: 30px
+  }
+}
+
+</style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="page-header">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>PLAN / 项目计划</span>
+        </div>
+      </header>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">MAKE EVERY DAY COUNT</p>
+          <h1>把计划，清晰呈现。</h1>
+          <p class="description">从项目到时间线，让每一步进展一目了然。</p>
+        </div>
+        <div class="summary">
+          <strong id="projectCount">00</strong>
+          <span>个项目 · 有序推进</span>
+        </div>
+      </section>
+      <section class="chart-panel" aria-label="甘特图">
+        <div class="chart-toolbar">
+          <div class="chart-heading">
+            <span class="section-dot"></span>
+            <h2>项目时间线</h2>
+            <span id="rangeLabel" class="range-label">等待你的第一个计划</span>
+          </div>
+          <div class="chart-controls">
+            <label class="toggle"><input id="showToday" type="checkbox" checked>今天</label>
+            <div class="zoom-controls" title="调整时间轴比例，导出使用当前比例">
+              <button id="zoomOut" aria-label="缩小">−</button>
+              <output id="zoomLabel">100%</output>
+              <button id="zoomIn" aria-label="放大">＋</button>
+            </div>
+            <span class="divider"></span>
+            <button id="exportSvg" title="按当前时间轴比例导出完整图表" class="button small" disabled>下载 SVG</button>
+            <button id="exportPng" title="按当前时间轴比例导出完整图表，PNG 清晰度自动调整" class="button dark small" disabled>↓ 下载 PNG</button>
+          </div>
+        </div>
+        <div id="chartScroll" class="chart-scroll">
+          <div id="emptyState" class="empty-state">
+            <div class="empty-bars" aria-hidden="true"><i></i><i></i><i></i></div>
+            <h3>你的下一个计划，从这里开始</h3>
+            <p>在下方添加项目，即可生成专属甘特图</p>
+            <button class="button" id="emptyAdd">＋ 添加第一个项目</button>
+          </div>
+          <svg id="ganttSvg" xmlns="http://www.w3.org/2000/svg" hidden></svg>
+        </div>
+        <div class="chart-footer">
+          <span><i class="legend-dot"></i>深色表示已完成进度</span>
+          <span>按自然日精确展示 · 支持横向滚动 · 导出使用当前时间轴比例</span>
+        </div>
+      </section>
+      <section class="editor" aria-labelledby="editorTitle">
+        <div class="editor-heading">
+          <div>
+            <h2 id="editorTitle">项目配置 <span id="rowCount">0</span></h2>
+            <p>修改后实时更新图表，合法数据自动保存在当前浏览器。</p>
+          </div>
+          <div class="editor-actions">
+            <button id="importJson" class="button quiet">↑ 导入配置</button>
+            <button id="exportJson" class="button quiet">↓ 导出配置</button>
+            <button id="addProject" class="button dark">＋ 添加项目</button>
+          </div>
+        </div>
+        <div class="editor-scroll">
+          <div class="editor-table">
+            <div class="table-head">
+              <span></span>
+              <span>项目名称</span>
+              <span>开始日期</span>
+              <span>结束日期</span>
+              <span>进度 %</span>
+              <span>颜色主题</span>
+              <span>操作</span>
+            </div>
+            <div id="projectRows"></div>
+            <p id="editorEmpty" class="editor-empty">暂无项目。添加一个项目，开始安排时间。</p>
+          </div>
+        </div>
+        <div class="editor-footer">
+          <span id="saveStatus" role="status">数据仅保存在你的设备上</span>
+          <span>建议定期导出 JSON 配置备份</span>
+        </div>
+      </section>
+      <footer class="page-footer">
+        <span>简单计划，专注推进。</span>
+        <span>OFFLINE GANTT · v1.0</span>
+      </footer>
+    </main>
+    <div id="toast" class="toast" role="status" hidden>
+      <span id="toastText"></span>
+      <button id="undoDelete" hidden>撤销</button>
+    </div>
+    <dialog id="importDialog">
+      <form method="dialog">
+        <span class="eyebrow">导入配置</span>
+        <h2>替换当前项目计划？</h2>
+        <p id="importMessage"></p>
+        <p class="muted">当前未完成的输入也将被替换。需要保留时，请先取消并导出配置。</p>
+        <div class="dialog-actions">
+          <button value="cancel" class="button">取消</button>
+          <button value="confirm" class="button dark">确认覆盖</button>
+        </div>
+      </form>
+    </dialog>
+    <input id="fileInput" type="file" accept=".json,application/json" hidden>
+    <script>
+/* date.js */
+'use strict';
+globalThis.Gantt = globalThis.Gantt || {};
+
+(() => {
+  const G = globalThis.Gantt;
+  function utc(y, m, d) {
+    const t = new Date(0);
+    t.setUTCFullYear(y, m - 1, d);
+    t.setUTCHours(0, 0, 0, 0);
+    return t;
+  }
+
+  function pad(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  function ymd(t) {
+    return `${String(t.getUTCFullYear()).padStart(4, '0')}-${pad(t.getUTCMonth() + 1)}-${pad(t.getUTCDate())}`;
+  }
+
+  function parse(value) {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return null;
+    }
+    const [y, m, d] = value.split('-').map(Number);
+    if (y < 1 || y > 9999) {
+      return null;
+    }
+    const t = utc(y, m, d);
+    return ymd(t) === value ? Math.floor(t.getTime() / 86400000) : null;
+  }
+
+  function fromDay(n) {
+    return ymd(new Date(n * 86400000));
+  }
+
+  function first(s) {
+    return s.slice(0, 7) + '-01';
+  }
+
+  function last(s) {
+    const [y, m] = s.split('-').map(Number);
+    return ymd(utc(y, m + 1, 0));
+  }
+
+  function nextMonth(s) {
+    const [y, m] = s.split('-').map(Number);
+    return ymd(utc(y, m + 1, 1));
+  }
+
+  function weeks(s) {
+    let day = parse(first(s));
+    const end = parse(last(s));
+    const out = [];
+    while (day <= end) {
+      const weekday = (new Date(day * 86400000).getUTCDay() + 6) % 7;
+      const finish = Math.min(day + 6 - weekday, end);
+      out.push({ label: `W${out.length + 1}`, start: day, end: finish });
+      day = finish + 1;
+    }
+    return out;
+  }
+
+  function rangeOK(projects) {
+    if (!projects.length) {
+      return true;
+    }
+    const start = projects.reduce((a, p) => p.start < a ? p.start : a, projects[0].start);
+    const end = projects.reduce((a, p) => p.end > a ? p.end : a, projects[0].end);
+    const [y, m, d] = start.split('-').map(Number);
+    return parse(end) <= Math.floor(utc(y + 2, m, d).getTime() / 86400000);
+  }
+
+  function localYmd(t = new Date()) {
+    return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+  }
+
+  G.date = { parse, fromDay, first, last, nextMonth, weeks, rangeOK, localYmd };
+  G.timestamp = function (t = new Date()) {
+    return localYmd(t).replaceAll('-', '') + '-' + pad(t.getHours()) + pad(t.getMinutes()) + pad(t.getSeconds());
+  };
+})();
+
+</script>
+<script>
+/* themes.js */
+(() => {
+  const G = globalThis.Gantt;
+  G.themes = [
+    ['blue-purple', '蓝紫', '#638be0', '#7955ca'],
+    ['cyan-blue', '青蓝', '#299eb7', '#356cab'],
+    ['purple-magenta', '紫粉', '#9465cc', '#b14d88'],
+    ['teal', '青绿', '#2a9d96', '#247481'],
+    ['orange-red', '橙红', '#d98b42', '#ca5869'],
+    ['sky-indigo', '天蓝', '#4898cf', '#5365bd'],
+    ['lavender', '淡紫', '#a17acb', '#7655ad'],
+    ['rose', '玫瑰', '#cc718c', '#b34f70'],
+    ['olive', '橄榄', '#8c9c50', '#5c865e'],
+    ['slate', '雾蓝', '#6b93ac', '#536e95']
+  ].map(([id, name, a, b]) => ({ id, name, a, b }));
+
+  G.validColor = function (c) {
+    return !!c && (
+      c.mode === 'preset'
+        ? G.themes.some(t => t.id === c.presetId)
+        : c.mode === 'custom' && /^#[0-9a-f]{6}$/i.test(c.customBase)
+    );
+  };
+
+  function custom(hex) {
+    const [r, g, b] = hex.slice(1).match(/../g).map(x => parseInt(x, 16) / 255);
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const delta = max - min;
+    let h = 0;
+    const l = (max + min) / 2;
+    if (delta) {
+      h = (
+        max === r
+          ? ((g - b) / delta + 6) % 6
+          : max === g
+            ? (b - r) / delta + 2
+            : (r - g) / delta + 4
+      ) * 60;
+    }
+    const s = delta ? delta / (1 - Math.abs(2 * l - 1)) : 0;
+
+    function color(dh, dl) {
+      return `hsl(${(h + dh + 360) % 360} ${Math.min(75, Math.max(25, s * 100))}% ${Math.min(55, Math.max(32, l * 100)) + dl}%)`;
+    }
+
+    return { a: color(-8, 0), b: color(8, -8) };
+  }
+
+  G.resolveColor = function (c) {
+    return c.mode === 'custom'
+      ? custom(c.customBase)
+      : G.themes.find(t => t.id === c.presetId);
+  };
+})();
+
+</script>
+<script>
+/* model.js */
+(() => {
+  const G = globalThis.Gantt;
+  G.zoomLevels = [0.65, 0.8, 1, 1.25, 1.5];
+
+  G.emptyConfig = function () {
+    return {
+      schemaVersion: 1,
+      settings: {
+        showToday: true,
+        zoom: 1
+      },
+      projects: []
+    };
+  };
+
+  G.projects = function (rows) {
+    return rows.flatMap(r => r.valid ? [r.valid] : []);
+  };
+
+  G.createRow = function (project = null, index = 0) {
+    return {
+      id: project?.id || 'p_' + crypto.randomUUID(),
+      draft: project
+        ? {
+          ...structuredClone(project),
+          progress: String(project.progress)
+        }
+        : {
+          name: '',
+          start: '',
+          end: '',
+          progress: '0',
+          color: {
+            mode: 'preset',
+            presetId: G.themes[index % G.themes.length].id
+          }
+        },
+      valid: project ? structuredClone(project) : null,
+      errors: {}
+    };
+  };
+
+  G.validateDraft = function (d) {
+    const e = {};
+    if (typeof d.name !== 'string' || !d.name.trim()) {
+      e.name = '请输入项目名称';
+    }
+    if (G.date.parse(d.start) === null) {
+      e.start = '请选择有效的开始日期';
+    }
+    if (G.date.parse(d.end) === null) {
+      e.end = '请选择有效的结束日期';
+    }
+    if (!e.start && !e.end && d.start > d.end) {
+      e.end = '结束日期不能早于开始日期';
+    }
+    if (
+      String(d.progress).trim() === '' ||
+      !Number.isInteger(Number(d.progress)) ||
+      Number(d.progress) < 0 ||
+      Number(d.progress) > 100
+    ) {
+      e.progress = '进度必须为 0～100 的整数';
+    }
+    if (!G.validColor(d.color)) {
+      e.color = '请选择有效颜色';
+    }
+    return e;
+  };
+
+  G.commitRow = function (rows, row) {
+    row.errors = G.validateDraft(row.draft);
+    if (Object.keys(row.errors).length) {
+      return false;
+    }
+    const p = {
+      id: row.id,
+      name: row.draft.name.trim(),
+      start: row.draft.start,
+      end: row.draft.end,
+      progress: Number(row.draft.progress),
+      color: structuredClone(row.draft.color)
+    };
+    const candidates = rows.flatMap(r => r === row ? [p] : r.valid ? [r.valid] : []);
+    if (!G.date.rangeOK(candidates)) {
+      row.errors.start = row.errors.end = '所有项目的整体跨度不能超过 2 年';
+      return false;
+    }
+    row.valid = p;
+    return true;
+  };
+
+  G.validateConfig = function (value) {
+    if (!value || value.schemaVersion !== 1) {
+      throw Error('不支持的配置版本');
+    }
+    if (
+      !value.settings ||
+      typeof value.settings.showToday !== 'boolean' ||
+      !G.zoomLevels.includes(value.settings.zoom)
+    ) {
+      throw Error('显示设置不合法');
+    }
+    if (!Array.isArray(value.projects)) {
+      throw Error('projects 必须是数组');
+    }
+    const ids = new Set();
+    const projects = value.projects.map((p, i) => {
+      if (!p || typeof p.id !== 'string' || !p.id.trim() || ids.has(p.id)) {
+        throw Error(`第 ${i + 1} 个项目的 ID 无效或重复`);
+      }
+      ids.add(p.id);
+      if (typeof p.progress !== 'number' || Object.keys(G.validateDraft(p)).length) {
+        throw Error(`第 ${i + 1} 个项目的数据不合法`);
+      }
+      const color = p.color.mode === 'preset'
+        ? {
+          mode: 'preset',
+          presetId: p.color.presetId
+        }
+        : {
+          mode: 'custom',
+          customBase: p.color.customBase
+        };
+      return {
+        id: p.id,
+        name: p.name.trim(),
+        start: p.start,
+        end: p.end,
+        progress: p.progress,
+        color
+      };
+    });
+    if (!G.date.rangeOK(projects)) {
+      throw Error('所有项目的整体跨度不能超过 2 年');
+    }
+    return {
+      schemaVersion: 1,
+      settings: {
+        showToday: value.settings.showToday,
+        zoom: value.settings.zoom
+      },
+      projects
+    };
+  };
+
+  G.restoreDeleted = function (rows, snapshot, now = Date.now()) {
+    if (!snapshot || now > snapshot.expiresAt) {
+      return '撤销已过期';
+    }
+    const next = rows.slice();
+    next.splice(Math.min(snapshot.index, next.length), 0, snapshot.row);
+    if (!G.date.rangeOK(G.projects(next))) {
+      return '恢复后整体跨度超过 2 年，请先调整日期';
+    }
+    rows.splice(0, rows.length, ...next);
+    return '';
+  };
+})();
+
+</script>
+<script>
+/* layout.js */
+(() => {
+  const G = globalThis.Gantt;
+  G.font = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif';
+
+  G.layout = function (projects, zoom) {
+    if (!projects.length) {
+      return null;
+    }
+    const start = G.date.first(projects.reduce((a, p) => p.start < a ? p.start : a, projects[0].start));
+    const end = G.date.last(projects.reduce((a, p) => p.end > a ? p.end : a, projects[0].end));
+    const startDay = G.date.parse(start);
+    const endDay = G.date.parse(end);
+    const dayWidth = 9 * zoom;
+
+    function x(day) {
+      return 32 + (day - startDay) * dayWidth;
+    }
+
+    const months = [];
+    let current = start;
+    while (G.date.parse(current) !== null && current <= end) {
+      months.push({
+        label: current.slice(0, 7),
+        start: G.date.parse(current),
+        end: G.date.parse(G.date.last(current)),
+        weeks: G.date.weeks(current)
+      });
+      current = G.date.nextMonth(current);
+    }
+    return {
+      start,
+      end,
+      startDay,
+      endDay,
+      dayWidth,
+      x,
+      months,
+      width: 64 + (endDay - startDay + 1) * dayWidth,
+      height: 126 + projects.length * 84,
+      tasks: projects.map((p, i) => ({
+        ...p,
+        x: x(G.date.parse(p.start)),
+        y: 110 + i * 84,
+        width: (G.date.parse(p.end) - G.date.parse(p.start) + 1) * dayWidth
+      }))
+    };
+  };
+
+  G.truncate = function (text, maxWidth, measure) {
+    if (measure(text) <= maxWidth) {
+      return text;
+    }
+    if (measure('…') > maxWidth) {
+      return '';
+    }
+    const parts = typeof Intl.Segmenter === 'function'
+      ? Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(text), s => s.segment)
+      : Array.from(text);
+    let lo = 0;
+    let hi = parts.length;
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      if (measure(parts.slice(0, mid).join('') + '…') <= maxWidth) {
+        lo = mid;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    return parts.slice(0, lo).join('') + '…';
+  };
+})();
+
+</script>
+<script>
+/* gantt.js */
+(() => {
+  const G = globalThis.Gantt;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function el(tag, attrs = {}, text) {
+    const n = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      n.setAttribute(k, String(v));
+    }
+    if (text !== undefined) {
+      n.textContent = text;
+    }
+    return n;
+  }
+
+  function line(svg, x, y1, y2, color, width = 1) {
+    return svg.append(el('line', {
+      x1: x,
+      x2: x,
+      y1,
+      y2,
+      stroke: color,
+      'stroke-width': width
+    }));
+  }
+
+  function initializeSvg(svg, projects, L) {
+    for (const [k, v] of Object.entries({
+      width: L.width,
+      height: L.height,
+      viewBox: `0 0 ${L.width} ${L.height}`,
+      role: 'img',
+      'aria-label': `项目甘特图，${projects.length} 个项目，${L.start} 至 ${L.end}`
+    })) {
+      svg.setAttribute(k, v);
+    }
+    svg.append(el('style', {}, `text{font-family:${G.font}}`));
+    svg.append(el('rect', {
+      width: L.width,
+      height: L.height,
+      fill: '#fff'
+    }));
+    const defs = el('defs');
+    svg.append(defs);
+    return defs;
+  }
+
+  function drawTimeAxis(svg, L) {
+    for (const month of L.months) {
+      line(svg, L.x(month.start), 34, L.height - 20, '#e9ecf1');
+      svg.append(el('text', {
+        x: (L.x(month.start) + L.x(month.end + 1)) / 2,
+        y: 36,
+        'text-anchor': 'middle',
+        fill: '#343944',
+        'font-size': 22,
+        'font-weight': 600
+      }, month.label));
+      for (const week of month.weeks) {
+        if (week.start !== month.start) {
+          line(svg, L.x(week.start), 82, L.height - 20, '#f0f2f5');
+        }
+        svg.append(el('text', {
+          x: (L.x(week.start) + L.x(week.end + 1)) / 2,
+          y: 72,
+          'text-anchor': 'middle',
+          fill: '#a0a6b1',
+          'font-size': Math.min(14, Math.max(9, (week.end - week.start + 1) * L.dayWidth * .8))
+        }, week.label));
+      }
+    }
+    line(svg, L.x(L.endDay + 1), 34, L.height - 20, '#e9ecf1');
+  }
+
+  function appendTaskBar(defs, group, t, i, theme) {
+    const grad = el('linearGradient', { id: `gradient-${i}`, x1: 0, y1: 0, x2: 1, y2: 0 });
+    grad.append(
+      el('stop', { offset: 0, 'stop-color': theme.a }),
+      el('stop', { offset: 1, 'stop-color': theme.b })
+    );
+    defs.append(grad);
+    const clip = el('clipPath', { id: `clip-${i}` });
+    clip.append(el('rect', {
+      x: t.x,
+      y: t.y,
+      width: t.width,
+      height: 54,
+      rx: Math.min(14, t.width / 2)
+    }));
+    defs.append(clip);
+    const body = el('g', { 'clip-path': `url(#clip-${i})` });
+    body.append(el('rect', {
+      x: t.x,
+      y: t.y,
+      width: t.width,
+      height: 54,
+      fill: `url(#gradient-${i})`,
+      opacity: .58
+    }));
+    body.append(el('rect', {
+      x: t.x,
+      y: t.y,
+      width: t.width * t.progress / 100,
+      height: 54,
+      fill: `url(#gradient-${i})`,
+      'data-progress': t.progress
+    }));
+    group.append(body);
+  }
+
+  function appendTaskLabels(group, t, theme, measure) {
+    const pillText = t.progress + '%';
+    const pillWidth = measure(pillText) + 24;
+    // 极短项目只省略标签，条形与进度宽度仍按真实日期绘制。
+    if (t.width >= pillWidth + 16) {
+      const name = G.truncate(t.name, t.width - pillWidth - 44, measure);
+      const nameWidth = measure(name);
+      if (name) {
+        group.append(el('text', {
+          x: t.x + 16,
+          y: t.y + 33,
+          fill: '#fff',
+          'font-size': 17,
+          'font-weight': 500,
+          style: 'paint-order:stroke;stroke:#27334755;stroke-width:1.2px;stroke-linejoin:round'
+        }, name));
+      }
+      const px = t.x + (name ? 16 + nameWidth + 12 : 8);
+      group.append(el('rect', {
+        x: px,
+        y: t.y + 10,
+        width: pillWidth,
+        height: 34,
+        rx: 17,
+        fill: '#fff',
+        'fill-opacity': .94
+      }));
+      group.append(el('text', {
+        x: px + pillWidth / 2,
+        y: t.y + 32,
+        'text-anchor': 'middle',
+        fill: theme.b,
+        'font-size': 16,
+        'font-weight': 600
+      }, pillText));
+    }
+  }
+
+  function drawTasks(svg, defs, L) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = `500 17px ${G.font}`;
+
+    function measure(t) {
+      return ctx.measureText(t).width;
+    }
+
+    for (const [i, t] of L.tasks.entries()) {
+      const theme = G.resolveColor(t.color);
+      const group = el('g', { 'data-task-id': t.id });
+      appendTaskBar(defs, group, t, i, theme);
+      appendTaskLabels(group, t, theme, measure);
+      group.append(el('title', {}, `${t.name}\n${t.start} ~ ${t.end}\n进度 ${t.progress}%`));
+      svg.append(group);
+    }
+  }
+
+  function drawToday(svg, L, settings) {
+    const today = G.date.parse(G.date.localYmd());
+    if (settings.showToday && today >= L.startDay && today <= L.endDay) {
+      const x = L.x(today) + L.dayWidth / 2;
+      line(svg, x, 92, L.height - 20, '#de626b', 2);
+      svg.append(el('circle', { cx: x, cy: 92, r: 3, fill: '#de626b' }));
+      svg.append(el('text', {
+        x: Math.min(L.width - 92, Math.max(8, x - 35)),
+        y: 90,
+        fill: '#cd626b',
+        'font-size': 10
+      }, G.date.localYmd()));
+    }
+  }
+
+  G.renderGantt = function (svg, projects, settings) {
+    svg.replaceChildren();
+    const L = G.layout(projects, settings.zoom);
+    if (!L) {
+      return null;
+    }
+    const defs = initializeSvg(svg, projects, L);
+    drawTimeAxis(svg, L);
+    drawTasks(svg, defs, L);
+    // 今天标记最后追加，使其始终位于任务条上层。
+    drawToday(svg, L, settings);
+    return L;
+  };
+})();
+
+</script>
+<script>
+/* storage.js */
+(() => {
+  const G = globalThis.Gantt;
+  G.storageKey = 'offline-project-gantt:v1';
+
+  G.loadConfig = function () {
+    try {
+      const raw = localStorage.getItem(G.storageKey);
+      return {
+        config: raw ? G.validateConfig(JSON.parse(raw)) : G.emptyConfig(),
+        message: raw ? '已恢复本地保存的计划' : '数据仅保存在你的设备上'
+      };
+    } catch {
+      return {
+        config: G.emptyConfig(),
+        message: '本地数据无法读取，已使用空白配置；原数据未自动覆盖',
+        warning: true
+      };
+    }
+  };
+
+  G.saveConfig = function (config) {
+    try {
+      localStorage.setItem(G.storageKey, JSON.stringify(config));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+})();
+
+</script>
+<script>
+/* export.js */
+(() => {
+  const G = globalThis.Gantt;
+
+  G.download = function (blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  };
+
+  G.serializeSvg = function (svg) {
+    const copy = svg.cloneNode(true);
+    copy.removeAttribute('hidden');
+    copy.querySelectorAll('title').forEach(n => n.remove());
+    copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    return new XMLSerializer().serializeToString(copy);
+  };
+
+  G.exportSvg = function (svg) {
+    return G.download(
+      new Blob([G.serializeSvg(svg)], { type: 'image/svg+xml;charset=utf-8' }),
+      'gantt-' + G.timestamp() + '.svg'
+    );
+  };
+
+  G.pngBlob = async function (svg) {
+    const width = Number(svg.getAttribute('width'));
+    const height = Number(svg.getAttribute('height'));
+    const scale = Math.min(2, Math.sqrt(24000000 / (width * height)), 16000 / width, 16000 / height);
+    const url = URL.createObjectURL(new Blob([G.serializeSvg(svg)], { type: 'image/svg+xml;charset=utf-8' }));
+    try {
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.floor(width * scale));
+      canvas.height = Math.max(1, Math.floor(height * scale));
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw Error('无法创建画布，请尝试下载 SVG');
+      }
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) {
+        throw Error('图片过大，请尝试下载 SVG');
+      }
+      return blob;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  G.exportJson = function (config) {
+    return G.download(
+      new Blob([JSON.stringify({ ...config, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }),
+      'gantt-config-' + G.timestamp() + '.json'
+    );
+  };
+})();
+
+</script>
+<script>
+/* ui.js */
+(() => {
+  const G = globalThis.Gantt;
+  function node(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) {
+      n.className = cls;
+    }
+    if (text !== undefined) {
+      n.textContent = text;
+    }
+    return n;
+  }
+
+  function createInput(row, key) {
+    const input = node('input');
+    input.dataset.key = key;
+    input.type = key === 'start' || key === 'end' ? 'date' : key === 'progress' ? 'number' : 'text';
+    input.value = row.draft[key];
+    input.setAttribute('aria-label', {
+      name: '项目名称',
+      start: '开始日期',
+      end: '结束日期',
+      progress: '当前进度'
+    }[key]);
+    if (key === 'name') {
+      input.placeholder = '输入项目名称';
+    }
+    if (key === 'progress') {
+      input.min = '0';
+      input.max = '100';
+      input.step = '1';
+    }
+    if (key === 'start' || key === 'end') {
+      input.min = '0001-01-01';
+      input.max = '9999-12-31';
+    }
+    return input;
+  }
+
+  function createColorControl(row) {
+    const control = node('div', 'color-control');
+    const select = node('select');
+    select.dataset.key = 'theme';
+    select.setAttribute('aria-label', '颜色主题');
+    for (const t of G.themes) {
+      const opt = node('option', '', t.name);
+      opt.value = t.id;
+      select.append(opt);
+    }
+    const custom = node('option', '', '自定义');
+    custom.value = 'custom';
+    select.append(custom);
+    select.value = row.draft.color.mode === 'custom' ? 'custom' : row.draft.color.presetId;
+    const color = node('input');
+    color.type = 'color';
+    color.dataset.key = 'customBase';
+    color.value = row.draft.color.customBase || '#638be0';
+    color.hidden = select.value !== 'custom';
+    color.setAttribute('aria-label', '自定义主色');
+    control.append(select, color);
+    return control;
+  }
+
+  function appendError(field, index, key) {
+    const error = node('span', 'error');
+    error.id = `error-${index}-${key}`;
+    field.append(error);
+    field.querySelectorAll('input,select').forEach(n => n.setAttribute('aria-describedby', error.id));
+  }
+
+  function createField(row, index, key) {
+    const field = node('div', 'field');
+    field.dataset.field = key;
+    field.append(key === 'color' ? createColorControl(row) : createInput(row, key));
+    appendError(field, index, key);
+    return field;
+  }
+
+  function createActions(index, count) {
+    const actions = node('div', 'row-actions');
+    for (const [action, text, label] of [['up', '↑', '上移'], ['down', '↓', '下移'], ['delete', '×', '删除项目']]) {
+      const b = node('button', 'icon-button ' + action, text);
+      b.dataset.action = action;
+      b.setAttribute('aria-label', label);
+      b.disabled = action === 'up' && index === 0 || action === 'down' && index === count - 1;
+      actions.append(b);
+    }
+    return actions;
+  }
+
+  function createRow(row, index, count) {
+    const div = node('div', 'project-row');
+    div.dataset.id = row.id;
+    const handle = node('button', 'icon-button handle', '⠿');
+    handle.dataset.action = 'drag';
+    handle.setAttribute('aria-label', '拖拽排序');
+    div.append(handle);
+    for (const key of ['name', 'start', 'end', 'progress', 'color']) {
+      div.append(createField(row, index, key));
+    }
+    div.append(createActions(index, count));
+    return div;
+  }
+
+  G.renderRows = function (host, rows) {
+    host.replaceChildren();
+    rows.forEach((row, index) => {
+      const div = createRow(row, index, rows.length);
+      host.append(div);
+      G.renderErrors(div, row);
+    });
+  };
+
+  G.renderErrors = function (div, row) {
+    for (const field of div.querySelectorAll('[data-field]')) {
+      const error = row.errors[field.dataset.field] || '';
+      field.querySelector('.error').textContent = error;
+      field.querySelectorAll('input,select').forEach(n => n.setAttribute('aria-invalid', String(!!error)));
+    }
+  };
+
+  G.setupDrag = function (host, move) {
+    let drag = null;
+    let frame = null;
+
+    function clearDropMarkers() {
+      host.querySelectorAll('.drop-before,.drop-after').forEach(n => n.classList.remove('drop-before', 'drop-after'));
+    }
+
+    function locateTarget(y) {
+      if (!drag) {
+        return;
+      }
+      clearDropMarkers();
+      // 目标下标按排除拖拽行后的列表计算，直接交给移动操作。
+      const others = [...host.children].filter(n => n.dataset.id !== drag.id);
+      const next = others.find(n => y < n.getBoundingClientRect().top + n.getBoundingClientRect().height / 2);
+      drag.target = next ? others.indexOf(next) : others.length;
+      if (next) {
+        next.classList.add('drop-before');
+      } else {
+        others.at(-1)?.classList.add('drop-after');
+      }
+    }
+
+    function tick() {
+      if (!drag) {
+        return;
+      }
+      if (drag.active) {
+        const delta = drag.y < 70 ? -12 : drag.y > innerHeight - 70 ? 12 : 0;
+        if (delta) {
+          window.scrollBy(0, delta);
+          locateTarget(drag.y);
+        }
+      }
+      frame = requestAnimationFrame(tick);
+    }
+
+    function startDrag(e) {
+      const handle = e.target.closest('[data-action=drag]');
+      if (!handle || e.button !== 0) {
+        return;
+      }
+      const row = handle.closest('.project-row');
+      drag = {
+        id: row.dataset.id,
+        startY: e.clientY,
+        y: e.clientY,
+        target: [...host.children].indexOf(row),
+        active: false,
+        pointer: e.pointerId
+      };
+      handle.setPointerCapture(e.pointerId);
+      frame = requestAnimationFrame(tick);
+    }
+
+    function updateDrag(e) {
+      if (!drag || e.pointerId !== drag.pointer) {
+        return;
+      }
+      drag.y = e.clientY;
+      if (Math.abs(e.clientY - drag.startY) > 5) {
+        drag.active = true;
+      }
+      if (drag.active) {
+        e.preventDefault();
+        [...host.children].find(n => n.dataset.id === drag.id)?.classList.add('dragging');
+        locateTarget(e.clientY);
+      }
+    }
+
+    function finishDrag(commit) {
+      if (!drag) {
+        return;
+      }
+      const old = drag;
+      // 先清理拖拽状态和样式，再提交排序；取消时只做清理。
+      drag = null;
+      cancelAnimationFrame(frame);
+      clearDropMarkers();
+      host.querySelector('.dragging')?.classList.remove('dragging');
+      if (commit && old.active) {
+        move(old.id, old.target);
+      }
+    }
+
+    host.addEventListener('pointerdown', startDrag);
+    host.addEventListener('pointermove', updateDrag);
+    host.addEventListener('pointerup', () => finishDrag(true));
+    host.addEventListener('pointercancel', () => finishDrag(false));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        finishDrag(false);
+      }
+    });
+  };
+})();
+
+</script>
+<script>
+/* app.js */
+(() => {
+  const G = globalThis.Gantt;
+
+  function getElementById(id) {
+    return document.getElementById(id);
+  }
+
+  const loaded = G.loadConfig();
+  let rows = loaded.config.projects.map(project => G.createRow(project));
+  let settings = loaded.config.settings;
+  let deleted = null;
+  let toastTimer;
+  let renderFrame;
+  let themeIndex = rows.length;
+
+  // 编辑器保留草稿；保存和图表只读取各行最后一次通过校验的有效态。
+  function currentConfig() {
+    return {
+      schemaVersion: 1,
+      settings: { ...settings },
+      projects: G.projects(rows)
+    };
+  }
+
+  function showSaveStatus(message, warning = false) {
+    getElementById('saveStatus').textContent = message;
+    getElementById('saveStatus').classList.toggle('warning', warning);
+  }
+  showSaveStatus(loaded.message, loaded.warning);
+
+  function saveCurrentConfig() {
+    const ok = G.saveConfig(currentConfig());
+    showSaveStatus(
+      ok
+        ? '已自动保存 · ' + new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+        : '未能自动保存，请导出配置备份',
+      !ok
+    );
+  }
+
+  function showToast(text, undo = false) {
+    clearTimeout(toastTimer);
+    getElementById('toastText').textContent = text;
+    getElementById('undoDelete').hidden = !undo;
+    getElementById('toast').hidden = false;
+    toastTimer = setTimeout(() => {
+      getElementById('toast').hidden = true;
+    }, undo ? 7000 : 4500);
+  }
+
+  // 图表更新与编辑器重建分开，输入时保持焦点、选区和输入法状态。
+  function renderChart() {
+    const projects = G.projects(rows);
+    const layout = G.renderGantt(getElementById('ganttSvg'), projects, settings);
+    getElementById('ganttSvg').toggleAttribute('hidden', !layout);
+    getElementById('emptyState').hidden = !!layout;
+    getElementById('exportSvg').disabled = getElementById('exportPng').disabled = !layout;
+    getElementById('projectCount').textContent = String(projects.length).padStart(2, '0');
+    getElementById('rangeLabel').textContent = layout ? `${layout.start} — ${layout.end}` : '等待你的第一个计划';
+    getElementById('showToday').checked = settings.showToday;
+    getElementById('zoomLabel').textContent = Math.round(settings.zoom * 100) + '%';
+    getElementById('zoomOut').disabled = settings.zoom === G.zoomLevels[0];
+    getElementById('zoomIn').disabled = settings.zoom === G.zoomLevels.at(-1);
+  }
+
+  function scheduleChartRender() {
+    cancelAnimationFrame(renderFrame);
+    renderFrame = requestAnimationFrame(renderChart);
+  }
+
+  function renderEditor() {
+    G.renderRows(getElementById('projectRows'), rows);
+    getElementById('rowCount').textContent = rows.length;
+    getElementById('editorEmpty').hidden = !!rows.length;
+  }
+
+  function refreshAfterRowChange() {
+    saveCurrentConfig();
+    renderEditor();
+    renderChart();
+  }
+
+  function addProject() {
+    rows.push(G.createRow(null, themeIndex++));
+    renderEditor();
+    const last = getElementById('projectRows').lastElementChild;
+    last.querySelector('[data-key=name]').focus();
+    last.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function updateDraft(event) {
+    if (event.isComposing) {
+      return;
+    }
+    const input = event.target;
+    const key = input.dataset.key;
+    if (!key) {
+      return;
+    }
+    const rowElement = input.closest('.project-row');
+    const row = rows.find(candidate => candidate.id === rowElement.dataset.id);
+    if (!row) {
+      return;
+    }
+    if (key === 'theme') {
+      row.draft.color = input.value === 'custom'
+        ? {
+          mode: 'custom',
+          customBase: rowElement.querySelector('[data-key=customBase]').value
+        }
+        : { mode: 'preset', presetId: input.value };
+      rowElement.querySelector('[data-key=customBase]').hidden = input.value !== 'custom';
+    } else if (key === 'customBase') {
+      row.draft.color = { mode: 'custom', customBase: input.value };
+    } else {
+      row.draft[key] = input.value;
+    }
+    if (G.commitRow(rows, row)) {
+      saveCurrentConfig();
+      scheduleChartRender();
+    }
+    G.renderErrors(rowElement, row);
+  }
+
+  function moveRow(id, target) {
+    const index = rows.findIndex(row => row.id === id);
+    if (index < 0 || target < 0 || target >= rows.length) {
+      return;
+    }
+    const [row] = rows.splice(index, 1);
+    rows.splice(target, 0, row);
+    refreshAfterRowChange();
+  }
+
+  function deleteRow(index) {
+    deleted = {
+      row: structuredClone(rows[index]),
+      index,
+      expiresAt: Date.now() + 7000
+    };
+    rows.splice(index, 1);
+    refreshAfterRowChange();
+    showToast(`已删除“${deleted.row.draft.name||'未命名项目'}”`, true);
+  }
+
+  function handleRowAction(event) {
+    const button = event.target.closest('[data-action]');
+    if (!button) {
+      return;
+    }
+    const rowElement = button.closest('.project-row');
+    const index = rows.findIndex(row => row.id === rowElement.dataset.id);
+    const action = button.dataset.action;
+    if (action === 'up' || action === 'down') {
+      moveRow(rowElement.dataset.id, index + (action === 'up' ? -1 : 1));
+      const movedElement = [...getElementById('projectRows').children].find(node => node.dataset.id === rowElement.dataset.id);
+      movedElement?.querySelector(`[data-action=${action}]`)?.focus();
+    }
+    if (action === 'delete') {
+      deleteRow(index);
+    }
+  }
+
+  function undoDelete() {
+    const error = G.restoreDeleted(rows, deleted);
+    if (error) {
+      getElementById('toastText').textContent = error;
+      return;
+    }
+    deleted = null;
+    refreshAfterRowChange();
+    showToast('项目已恢复');
+  }
+
+  function changeZoom(delta) {
+    const next = G.zoomLevels[G.zoomLevels.indexOf(settings.zoom) + delta];
+    if (next) {
+      settings.zoom = next;
+      saveCurrentConfig();
+      renderChart();
+    }
+  }
+
+  // 导出前同步刷新，避免读取尚未由下一帧更新的图表。
+  function exportSvg() {
+    renderChart();
+    G.exportSvg(getElementById('ganttSvg'));
+  }
+
+  async function exportPng() {
+    renderChart();
+    const button = getElementById('exportPng');
+    button.disabled = true;
+    button.textContent = '正在生成…';
+    try {
+      const blob = await G.pngBlob(getElementById('ganttSvg'));
+      G.download(blob, 'gantt-' + G.timestamp() + '.png');
+      showToast('PNG 已生成');
+    } catch (error) {
+      showToast('PNG 生成失败，请尝试 SVG：' + error.message);
+    } finally {
+      button.disabled = !G.projects(rows).length;
+      button.textContent = '↓ 下载 PNG';
+    }
+  }
+
+  function applyImportedConfig(next) {
+    rows = next.projects.map(project => G.createRow(project));
+    settings = next.settings;
+    themeIndex = rows.length;
+    deleted = null;
+    refreshAfterRowChange();
+    showToast('配置已导入');
+  }
+
+  async function importConfig(event) {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (!file) {
+      return;
+    }
+    try {
+      const next = G.validateConfig(JSON.parse(await file.text()));
+      getElementById('importMessage').textContent = `当前有 ${rows.length} 个编辑项目。导入后将替换为 ${next.projects.length} 个项目。`;
+      const dialog = getElementById('importDialog');
+      dialog.returnValue = 'cancel';
+      dialog.showModal();
+      // 校验后的配置暂存在本次回调中，只有确认关闭对话框才替换当前状态。
+      dialog.addEventListener('close', () => {
+        if (dialog.returnValue !== 'confirm') {
+          return;
+        }
+        applyImportedConfig(next);
+      }, { once: true });
+    } catch (error) {
+      showToast('无法导入：' + error.message);
+    }
+  }
+
+  // 统一绑定页面事件；行输入采用委托，编辑器重建后无需重新绑定。
+  getElementById('addProject').onclick = getElementById('emptyAdd').onclick = addProject;
+  getElementById('projectRows').addEventListener('input', updateDraft);
+  getElementById('projectRows').addEventListener('change', updateDraft);
+  getElementById('projectRows').addEventListener('compositionend', updateDraft);
+  getElementById('projectRows').onclick = handleRowAction;
+  G.setupDrag(getElementById('projectRows'), moveRow);
+  getElementById('undoDelete').onclick = undoDelete;
+  getElementById('showToday').onchange = event => {
+    settings.showToday = event.target.checked;
+    saveCurrentConfig();
+    renderChart();
+  };
+  getElementById('zoomOut').onclick = () => changeZoom(-1);
+  getElementById('zoomIn').onclick = () => changeZoom(1);
+  getElementById('exportJson').onclick = () => G.exportJson(currentConfig());
+  getElementById('exportSvg').onclick = exportSvg;
+  getElementById('exportPng').onclick = exportPng;
+  getElementById('importJson').onclick = () => getElementById('fileInput').click();
+  getElementById('fileInput').onchange = importConfig;
+
+  let lastToday = G.date.localYmd();
+
+  function refreshToday() {
+    const today = G.date.localYmd();
+    if (today !== lastToday) {
+      lastToday = today;
+      renderChart();
+    }
+  }
+  setInterval(refreshToday, 30000);
+  document.addEventListener('visibilitychange', refreshToday);
+  renderEditor();
+  renderChart();
+})();
+
+</script>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    name: Core tests and build check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Run core tests
+        run: node --test tests/core.test.mjs
+      - name: Check generated HTML
+        run: node scripts/build.mjs --check
+
+  browser:
+    name: Browser regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Run browser tests
+        run: npm run test:browser
+      - name: Upload browser results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-results
+          path: tests/artifacts/
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,699 @@
+:root {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",Arial,sans-serif;
+  color: #292d35;
+  background: #f7f8fa;
+  font-synthesis: none;
+  --muted: #8a909b;
+  --line: #e9ebef;
+  --accent: #6578c3
+}
+
+* {
+  box-sizing: border-box
+}
+
+body {
+  margin: 0
+}
+
+button,input,select {
+  font: inherit
+}
+
+button {
+  cursor: pointer
+}
+
+button:disabled {
+  opacity: .35;
+  cursor: not-allowed
+}
+
+button,input,select {
+  outline: none
+}
+
+button:focus-visible,input:focus-visible,select:focus-visible {
+  outline: 3px solid #b1bff1;
+  outline-offset: 2px
+}
+
+[hidden] {
+  display: none!important
+}
+
+.app-shell {
+  max-width: 1600px;
+  padding: 0 48px;
+  margin: auto
+}
+
+.page-header {
+  height: 88px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.4px
+}
+
+.brand-icon {
+  width: 30px;
+  display: grid;
+  gap: 4px
+}
+
+.brand-icon i {
+  height: 5px;
+  background: #6b78bd;
+  border-radius: 2px;
+  width: 20px
+}
+
+.brand-icon i:nth-child(2) {
+  margin-left: 6px;
+  width: 24px
+}
+
+.brand-icon i:nth-child(3) {
+  margin-left: 3px;
+  width: 15px
+}
+
+.offline {
+  font-size: 12px;
+  color: #7e8590
+}
+
+.offline>span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #75a58b;
+  border-radius: 50%;
+  margin-right: 6px
+}
+
+.intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 42px 0 34px
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 2.3px;
+  color: #8b93a3;
+  font-weight: 600;
+  margin: 0 0 13px
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin: 0 0 13px
+}
+
+.description {
+  font-size: 13px;
+  color: #8a909b;
+  margin: 0
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px
+}
+
+.summary strong {
+  font-size: 38px;
+  line-height: 1;
+  color: #7580a2;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums
+}
+
+.summary span {
+  font-size: 11px;
+  color: #969ba5
+}
+
+.chart-panel {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 5px 18px #25345703
+}
+
+.chart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f1f4;
+  flex-wrap: wrap
+}
+
+.chart-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
+
+h2 {
+  font-size: 15px;
+  margin: 0;
+  font-weight: 600
+}
+
+.section-dot {
+  width: 7px;
+  height: 7px;
+  background: #7381bb;
+  border-radius: 50%
+}
+
+.range-label {
+  font-size: 11px;
+  color: #9b9fa8;
+  margin-left: 8px
+}
+
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #757b86;
+  margin-right: 8px
+}
+
+.toggle input {
+  accent-color: #6d7dbd
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+  height: 31px
+}
+
+.zoom-controls button {
+  border: 0;
+  background: white;
+  width: 29px;
+  color: #727985;
+  height: 100%
+}
+
+.zoom-controls output {
+  font-size: 11px;
+  min-width: 43px;
+  text-align: center;
+  color: #707783
+}
+
+.divider {
+  height: 20px;
+  border-left: 1px solid var(--line);
+  margin: 0 3px
+}
+
+.button {
+  border: 1px solid #e1e4eb;
+  background: #fff;
+  color: #59616f;
+  border-radius: 7px;
+  padding: 10px 14px;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: background .15s
+}
+
+.button:hover {
+  background: #f3f5f9
+}
+
+.button.dark {
+  background: #343e54;
+  border-color: #343e54;
+  color: white
+}
+
+.button.dark:hover {
+  background: #46516a
+}
+
+.button.small {
+  padding: 7px 11px;
+  font-size: 11px
+}
+
+.button.quiet {
+  border-color: transparent;
+  background: transparent
+}
+
+.chart-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 320px;
+  padding: 12px 0 0;
+  scrollbar-color: #d4d9e4 transparent;
+  scrollbar-width: thin
+}
+
+#ganttSvg {
+  display: block;
+  max-width: none
+}
+
+.empty-state {
+  min-height: 315px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center
+}
+
+.empty-bars {
+  width: 105px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px
+}
+
+.empty-bars i {
+  height: 10px;
+  width: 67px;
+  background: linear-gradient(90deg,#d6dff5,#ded8ee);
+  border-radius: 4px
+}
+
+.empty-bars i:nth-child(2) {
+  margin-left: 26px;
+  width: 78px;
+  background: linear-gradient(90deg,#d1e8eb,#d8e1f0)
+}
+
+.empty-bars i:nth-child(3) {
+  margin-left: 10px;
+  width: 53px;
+  background: linear-gradient(90deg,#e1d7ec,#ecdce3)
+}
+
+.empty-state h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 10px
+}
+
+.empty-state p {
+  font-size: 12px;
+  color: #999faa;
+  margin: 0 0 22px
+}
+
+.chart-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #f1f2f5;
+  display: flex;
+  justify-content: space-between;
+  color: #a0a5ae;
+  font-size: 10px
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7a89bd;
+  margin-right: 7px
+}
+
+.editor {
+  margin-top: 32px
+}
+
+.editor-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px
+}
+
+.editor-heading h2 {
+  font-size: 17px
+}
+
+.editor-heading h2 span {
+  font-size: 11px;
+  margin-left: 7px;
+  color: #8c94a4;
+  background: #e9ecf2;
+  border-radius: 5px;
+  padding: 2px 6px
+}
+
+.editor-heading p {
+  font-size: 11px;
+  color: #9197a1;
+  margin: 9px 0 0
+}
+
+.editor-actions {
+  display: flex;
+  gap: 5px
+}
+
+.editor-scroll {
+  overflow: auto;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px
+}
+
+.editor-table {
+  min-width: 980px
+}
+
+.table-head,.project-row {
+  display: grid;
+  grid-template-columns: 28px minmax(150px,1fr) 145px 145px 90px 140px 100px;
+  gap: 12px;
+  align-items: start;
+  padding: 16px 20px
+}
+
+.table-head {
+  font-size: 11px;
+  color: #8c929e;
+  background: #fafbfc;
+  border-bottom: 1px solid var(--line);
+  padding-top: 13px;
+  padding-bottom: 13px
+}
+
+.project-row {
+  border-bottom: 1px solid #f0f2f5;
+  position: relative
+}
+
+.project-row:last-child {
+  border-bottom: 0
+}
+
+.project-row.dragging {
+  opacity: .45;
+  background: #f0f3fd
+}
+
+.project-row.drop-before:before,.project-row.drop-after:after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: #7b8ac4;
+  top: 0
+}
+
+.project-row.drop-after:after {
+  top: auto;
+  bottom: 0
+}
+
+.field input,.field select {
+  width: 100%;
+  border: 1px solid #e5e8ed;
+  border-radius: 6px;
+  background: #fff;
+  padding: 8px 9px;
+  height: 35px;
+  font-size: 12px;
+  color: #586170
+}
+
+.field input::placeholder {
+  color: #b3b8c1
+}
+
+.field input[aria-invalid=true],.field select[aria-invalid=true] {
+  border-color: #d76565;
+  background: #fff9f9
+}
+
+.field .error {
+  display: block;
+  color: #c85353;
+  font-size: 10px;
+  line-height: 1.5;
+  margin-top: 4px
+}
+
+.field .error:empty {
+  display: none
+}
+
+.color-control {
+  display: flex;
+  gap: 5px
+}
+
+.color-control select {
+  min-width: 0
+}
+
+.color-control input[type=color] {
+  width: 34px;
+  padding: 3px;
+  flex-shrink: 0
+}
+
+.row-actions {
+  display: flex;
+  gap: 3px
+}
+
+.icon-button {
+  width: 30px;
+  height: 35px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #949ba8;
+  font-size: 15px
+}
+
+.icon-button:hover {
+  background: #edf0f6;
+  color: #5a6682
+}
+
+.icon-button.delete:hover {
+  color: #bd5555;
+  background: #fff0f0
+}
+
+.handle {
+  touch-action: none;
+  cursor: grab;
+  letter-spacing: -2px
+}
+
+.editor-empty {
+  text-align: center;
+  padding: 25px;
+  color: #a2a8b3;
+  font-size: 12px
+}
+
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 13px;
+  font-size: 10px;
+  color: #969da8
+}
+
+.editor-footer .warning {
+  color: #ba7950
+}
+
+.page-footer {
+  display: flex;
+  justify-content: space-between;
+  margin: 38px 0 24px;
+  font-size: 10px;
+  color: #adb2bc
+}
+
+.page-footer span:last-child {
+  letter-spacing: 1.6px
+}
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #343e54;
+  color: #fff;
+  padding: 13px 20px;
+  border-radius: 9px;
+  box-shadow: 0 6px 30px #1f294030;
+  font-size: 12px;
+  z-index: 10;
+  max-width: 90vw;
+  display: flex;
+  gap: 20px;
+  align-items: center
+}
+
+.toast button {
+  background: transparent;
+  border: 0;
+  color: #bfcfff;
+  white-space: nowrap
+}
+
+dialog {
+  max-width: 440px;
+  border: 1px solid #e5e8ee;
+  border-radius: 14px;
+  padding: 28px;
+  color: #343e54;
+  box-shadow: 0 20px 80px #1d294333
+}
+
+dialog::backdrop {
+  background: #202b4555
+}
+
+dialog h2 {
+  font-size: 20px;
+  margin-bottom: 18px
+}
+
+dialog p {
+  font-size: 13px;
+  line-height: 1.8
+}
+
+.muted {
+  color: #9097a3
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px
+}
+
+@media(max-width:1100px) {
+  .app-shell {
+    padding: 0 24px
+  }
+
+  .chart-toolbar {
+    padding: 18px
+  }
+
+  .range-label {
+    display: none
+  }
+
+  .editor-heading {
+    align-items: flex-start
+  }
+}
+
+@media(max-width:700px) {
+  .app-shell {
+    padding: 0 16px
+  }
+
+  .page-header {
+    height: 68px
+  }
+
+  .brand {
+    font-size: 11px
+  }
+
+  .offline {
+    font-size: 10px
+  }
+
+  .intro {
+    padding: 30px 0
+  }
+
+  h1 {
+    font-size: 25px
+  }
+
+  .summary {
+    display: none
+  }
+
+  .chart-controls {
+    flex-wrap: wrap;
+    gap: 6px
+  }
+
+  .chart-heading {
+    width: 100%;
+    margin-bottom: 4px
+  }
+
+  .chart-footer span:last-child {
+    display: none
+  }
+
+  .editor-heading {
+    flex-direction: column
+  }
+
+  .editor-actions {
+    align-self: flex-end
+  }
+
+  .editor-footer span:last-child {
+    display: none
+  }
+
+  .description {
+    font-size: 12px
+  }
+
+  .page-footer {
+    margin-top: 30px
+  }
+}

@@ -1,0 +1,126 @@
+<!doctype html>
+<!--
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (c) 2026 ZieglerZhu
+
+This program is free software, distributed under the GNU GPL version 3 only.
+It comes without any warranty. See the accompanying LICENSE file for full terms.
+Source code: https://github.com/ZieglerZhu/offline-gantt
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'">
+    <title>项目甘特图 · 离线计划工具</title>
+    <!-- INLINE_CSS -->
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="page-header">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>PLAN / 项目计划</span>
+        </div>
+      </header>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">MAKE EVERY DAY COUNT</p>
+          <h1>把计划，清晰呈现。</h1>
+          <p class="description">从项目到时间线，让每一步进展一目了然。</p>
+        </div>
+        <div class="summary">
+          <strong id="projectCount">00</strong>
+          <span>个项目 · 有序推进</span>
+        </div>
+      </section>
+      <section class="chart-panel" aria-label="甘特图">
+        <div class="chart-toolbar">
+          <div class="chart-heading">
+            <span class="section-dot"></span>
+            <h2>项目时间线</h2>
+            <span id="rangeLabel" class="range-label">等待你的第一个计划</span>
+          </div>
+          <div class="chart-controls">
+            <label class="toggle"><input id="showToday" type="checkbox" checked>今天</label>
+            <div class="zoom-controls" title="调整时间轴比例，导出使用当前比例">
+              <button id="zoomOut" aria-label="缩小">−</button>
+              <output id="zoomLabel">100%</output>
+              <button id="zoomIn" aria-label="放大">＋</button>
+            </div>
+            <span class="divider"></span>
+            <button id="exportSvg" title="按当前时间轴比例导出完整图表" class="button small" disabled>下载 SVG</button>
+            <button id="exportPng" title="按当前时间轴比例导出完整图表，PNG 清晰度自动调整" class="button dark small" disabled>↓ 下载 PNG</button>
+          </div>
+        </div>
+        <div id="chartScroll" class="chart-scroll">
+          <div id="emptyState" class="empty-state">
+            <div class="empty-bars" aria-hidden="true"><i></i><i></i><i></i></div>
+            <h3>你的下一个计划，从这里开始</h3>
+            <p>在下方添加项目，即可生成专属甘特图</p>
+            <button class="button" id="emptyAdd">＋ 添加第一个项目</button>
+          </div>
+          <svg id="ganttSvg" xmlns="http://www.w3.org/2000/svg" hidden></svg>
+        </div>
+        <div class="chart-footer">
+          <span><i class="legend-dot"></i>深色表示已完成进度</span>
+          <span>按自然日精确展示 · 支持横向滚动 · 导出使用当前时间轴比例</span>
+        </div>
+      </section>
+      <section class="editor" aria-labelledby="editorTitle">
+        <div class="editor-heading">
+          <div>
+            <h2 id="editorTitle">项目配置 <span id="rowCount">0</span></h2>
+            <p>修改后实时更新图表，合法数据自动保存在当前浏览器。</p>
+          </div>
+          <div class="editor-actions">
+            <button id="importJson" class="button quiet">↑ 导入配置</button>
+            <button id="exportJson" class="button quiet">↓ 导出配置</button>
+            <button id="addProject" class="button dark">＋ 添加项目</button>
+          </div>
+        </div>
+        <div class="editor-scroll">
+          <div class="editor-table">
+            <div class="table-head">
+              <span></span>
+              <span>项目名称</span>
+              <span>开始日期</span>
+              <span>结束日期</span>
+              <span>进度 %</span>
+              <span>颜色主题</span>
+              <span>操作</span>
+            </div>
+            <div id="projectRows"></div>
+            <p id="editorEmpty" class="editor-empty">暂无项目。添加一个项目，开始安排时间。</p>
+          </div>
+        </div>
+        <div class="editor-footer">
+          <span id="saveStatus" role="status">数据仅保存在你的设备上</span>
+          <span>建议定期导出 JSON 配置备份</span>
+        </div>
+      </section>
+      <footer class="page-footer">
+        <span>简单计划，专注推进。</span>
+        <span>OFFLINE GANTT · v1.0</span>
+      </footer>
+    </main>
+    <div id="toast" class="toast" role="status" hidden>
+      <span id="toastText"></span>
+      <button id="undoDelete" hidden>撤销</button>
+    </div>
+    <dialog id="importDialog">
+      <form method="dialog">
+        <span class="eyebrow">导入配置</span>
+        <h2>替换当前项目计划？</h2>
+        <p id="importMessage"></p>
+        <p class="muted">当前未完成的输入也将被替换。需要保留时，请先取消并导出配置。</p>
+        <div class="dialog-actions">
+          <button value="cancel" class="button">取消</button>
+          <button value="confirm" class="button dark">确认覆盖</button>
+        </div>
+      </form>
+    </dialog>
+    <input id="fileInput" type="file" accept=".json,application/json" hidden>
+    <!-- INLINE_JS -->
+  </body>
+</html>
